@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Author Lander Usategui San Juan, lander.usategui@gmail.com, creado para Open Gasteiz
+
 import pygtk
 pygtk.require('2.0')
 
 import gtk
+import urllib2
 
 class Application():
 
@@ -42,12 +45,36 @@ class Application():
         self.button_ok.connect("clicked", self.callback_ok)
         self.button_exit.connect("clicked", self.callback_exit)
 
+    def error_dialog(self,mensaje):
+        dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR,gtk.BUTTONS_CLOSE,"%s" %(mensaje))
+        dialog.run()
+        dialog.destroy()
+
     def callback_ok(self, widget, callback_data=None):
-        name = self.entry.get_text()
-        print name
+        youtubeURL = self.entry.get_text()
+        if len(youtubeURL) != 0:
+            if check_internet():
+                #Comenzamos el streaming
+                print ("streaming")
+            else:
+                no_internet="Compruebe su acceso a internet"
+                self.error_dialog(no_internet)
+        else:
+            bad_URL = "La URL no puede estar vacía"
+            #print(bad_URL)
+            self.error_dialog(bad_URL)
+            gtk.main_quit()
 
     def callback_exit(self, widget, callback_data=None):
         gtk.main_quit()
+
+def check_internet():
+    # http://stackoverflow.com/questions/3764291/checking-network-connection
+    try:
+        urllib2.urlopen('http://216.58.192.142', timeout=1)
+        return True
+    except urllib2.URLError as err:
+        return False
 
 if __name__ == "__main__":
     app = Application()
