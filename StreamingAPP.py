@@ -8,6 +8,7 @@ pygtk.require('2.0')
 
 import gtk
 import urllib2
+import os
 
 class Application():
 
@@ -55,7 +56,7 @@ class Application():
         if len(youtubeURL) != 0:
             if check_internet():
                 #Comenzamos el streaming
-                print ("streaming")
+                caputureVideo(youtubeURL)
             else:
                 no_internet="Compruebe su acceso a internet"
                 self.error_dialog(no_internet)
@@ -75,6 +76,10 @@ def check_internet():
         return True
     except urllib2.URLError as err:
         return False
+
+def caputureVideo(url):
+    os.system("raspivid -o - -t 0 -vf -hf -fps 30 -b 6000000 | avconv -re -ar 44100 -ac 2 -acodec pcm_s16le -f s16le -ac 2 -i /dev/zero -f h264 -i - -vcodec copy -acodec aac -ab 128k -g 50 -strict experimental -f flv %s
+" % (url))
 
 if __name__ == "__main__":
     app = Application()
